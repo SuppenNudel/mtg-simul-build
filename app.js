@@ -1,4 +1,6 @@
-'use strict';
+// This file has been split into ES modules under js/
+// Entry point: js/main.js
+
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

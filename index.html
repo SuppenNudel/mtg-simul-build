@@ -61,11 +61,11 @@
         <div id="tierlist-panel" class="tierlist-panel hidden">
           <div class="tierlist-panel-header">
             <span id="tierlist-status" class="hint">Click “Load Tier List” to fetch the latest data.</span>
-            <button class="btn btn-secondary btn-small" onclick="loadTierList()">&#x21BB; Load Tier List</button>
+            <button id="load-tierlist-btn" class="btn btn-secondary btn-small">&#x21BB; Load Tier List</button>
           </div>
           <div id="tierlist-decks-list"></div>
           <div id="tierlist-actions" class="tierlist-actions hidden">
-            <button id="import-selected-btn" class="btn btn-primary" onclick="importSelected()">↓ Import Selected Decks</button>
+            <button id="import-selected-btn" class="btn btn-primary">↓ Import Selected Decks</button>
             <span id="import-progress" class="hint"></span>
           </div>
         </div>
@@ -109,6 +109,6 @@
     </footer>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
