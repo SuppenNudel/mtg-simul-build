@@ -59,39 +59,45 @@ export function renderTierListDecks(decks) {
     const tierDecks = byTier[tier];
     
     html += `
-      <div class="tier-group">
-        <div class="tier-group-header">
-          <span class="tier-badge" style="background:${color}">${tier === '?' ? 'Unknown' : 'Tier ' + tier}</span>
-          <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="true">Select all</button>
-          <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="false">Deselect all</button>
+      <div class="tier-section">
+        <div class="tier-badge-bar" style="background:${color}">
+          <div class="tier-badge-label">${tier === '?' ? '?' : tier}</div>
         </div>
-        <table class="tier-table">
-          <thead>
-            <tr>
-              <th style="width: 30px;"></th>
-              <th>Deck Name</th>
-              <th style="width: 70px;">Score</th>
-              <th style="width: 80px;">Trophies</th>
-              <th style="width: 60px;">Weeks</th>
-              <th style="width: 80px;">Presence</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div class="tier-decks-wrapper">
+          <div class="tier-section-controls">
+            <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="true">Select all</button>
+            <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="false">Deselect all</button>
+          </div>
+          <div class="tier-decks">
             ${tierDecks.map(d => `
-              <tr>
-                <td style="text-align: center;">
+              <div class="deck-card">
+                <div class="deck-card-header">
                   <input type="checkbox" class="tier-deck-check"
                          data-deck-id="${esc(d.deckId)}" data-deck-name="${esc(d.name)}" />
-                </td>
-                <td>${esc(d.name)}</td>
-                <td>${d.score.toFixed(1)}</td>
-                <td>${d.trophies}</td>
-                <td>${d.weeks}</td>
-                <td>${d.presence.toFixed(0)}%</td>
-              </tr>
+                  <span class="deck-name">${esc(d.name)}</span>
+                </div>
+                <div class="deck-stats">
+                  <div class="stat">
+                    <div class="stat-value">${d.trophies}</div>
+                    <div class="stat-label">Trophies</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${d.presence.toFixed(0)}%</div>
+                    <div class="stat-label">Presence</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${d.weeks}</div>
+                    <div class="stat-label">Weeks</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${d.score.toFixed(2)}</div>
+                    <div class="stat-label">Score</div>
+                  </div>
+                </div>
+              </div>
             `).join('')}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     `;
   }
