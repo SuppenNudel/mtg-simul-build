@@ -66,7 +66,11 @@
           <div id="tierlist-decks-list"></div>
           <div id="tierlist-actions" class="tierlist-actions hidden">
             <button id="import-selected-btn" class="btn btn-primary">↓ Import Selected Decks</button>
-            <span id="import-progress" class="hint"></span>
+            <div id="import-progress-wrap" class="import-progress-wrap hidden">
+              <div class="import-bar-track"><div id="import-progress-bar" class="import-bar-fill"></div></div>
+              <div id="import-progress-label" class="hint"></div>
+              <div id="import-log" class="import-log"></div>
+            </div>
           </div>
         </div>
 
