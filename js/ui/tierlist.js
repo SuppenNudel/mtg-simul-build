@@ -63,7 +63,7 @@ export function renderTierListDecks(decks) {
     if (!byTier[tier]) continue;
     const color = TIER_COLORS[tier];
     const tierDecks = byTier[tier];
-    const isCollapsed = tier === 'D' || tier === '?';
+    const isCollapsed = tier === '?';
     const tierLabel = tier === '?' ? 'Rogue' : `Tier ${tier}`;
     
     html += `
