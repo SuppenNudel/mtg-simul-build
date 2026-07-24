@@ -572,6 +572,10 @@ textarea:focus, input[type="text"]:focus {
   font-size: 1rem;
   color: var(--text-muted);
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .results-summary strong { color: var(--text); }
@@ -749,6 +753,28 @@ details summary:hover { color: #ff8888; }
 .combo-result-box.fail { background: var(--red-bg);   border: 1px solid var(--red);   color: var(--text); }
 
 .combo-result-box .result-title { font-weight: 700; margin-bottom: 8px; }
+
+/* ── Export button ──────────────────────────────────────────────────── */
+.export-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gold);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+
+.export-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold-dim);
+}
+
+.export-btn:active {
+  opacity: 0.8;
+}
 
 /* ── Footer ─────────────────────────────────────────────────── */
 footer {

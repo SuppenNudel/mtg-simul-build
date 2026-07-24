@@ -2,16 +2,108 @@ import { state } from '../state.js';
 import { esc, titleCase } from '../utils.js';
 import { checkSimultaneous } from '../solver.js';
 
+// ── Export utilities ──────────────────────────────────────────────────────
+
+function downloadCsv(filename, headers, rows) {
+  const csvContent = [
+    headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
+    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+  ].join('\n');
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
+export function exportIndividualMissing() {
+  const deckResults = state.currentResult?.deckResults;
+  if (!deckResults) {
+    alert('Run Check Buildability first.');
+    return;
+  }
+  
+  const rows = [];
+  for (const d of deckResults) {
+    if (d.missing.length === 0) continue;
+    for (const card of d.missing) {
+      rows.push([
+        d.name,
+        titleCase(card.name),
+        card.need,
+        card.have,
+        card.short
+      ]);
+    }
+  }
+  
+  if (rows.length === 0) {
+    alert('No missing cards to export.');
+    return;
+  }
+  
+  downloadCsv(
+    `missing-cards-individual-${new Date().toISOString().slice(0,10)}.csv`,
+    ['Deck', 'Card Name', 'Need', 'Have', 'Short'],
+    rows
+  );
+}
+
+export function exportSimultaneousMissing() {
+  const result = state.currentResult;
+  if (!result) {
+    alert('Run Check Buildability first.');
+    return;
+  }
+  
+  const selected = [...document.querySelectorAll('.combo-check:checked')]
+    .map(cb => +cb.dataset.index);
+  
+  if (selected.length === 0) {
+    alert('Select at least one deck in the interactive checker.');
+    return;
+  }
+  
+  const comboResult = checkSimultaneous(selected, result.parsedDecks, result.collection, result.unlimitedBasics, result.subFind);
+  
+  if (comboResult.canBuild) {
+    alert('These decks can be built simultaneously—no missing cards!');
+    return;
+  }
+  
+  const rows = comboResult.missing.map(card => [
+    selected.map(i => result.parsedDecks[i].name).join(' + '),
+    titleCase(card.name),
+    card.need,
+    card.have,
+    card.short
+  ]);
+  
+  if (rows.length === 0) {
+    alert('No missing cards to export.');
+    return;
+  }
+  
+  downloadCsv(
+    `missing-cards-simultaneous-${new Date().toISOString().slice(0,10)}.csv`,
+    ['Combo', 'Card Name', 'Need', 'Have', 'Short'],
+    rows
+  );
+}
+
 // ── Individual deck results ───────────────────────────────────────────────────
 
 export function renderIndividual(deckResults) {
   const canCount = deckResults.filter(d => d.canBuild).length;
   const total    = deckResults.length;
+  const hasMissing = deckResults.some(d => d.missing.length > 0);
 
   let html = `
     <p class="results-summary">
       <strong>${canCount}</strong> of <strong>${total}</strong>
       deck${total !== 1 ? 's' : ''} can be built individually.
+      ${hasMissing ? '<button id="export-individual-missing" class="export-btn" style="margin-left:auto">📥 Export Missing Cards</button>' : ''}
     </p>
     <div class="deck-results-grid">
   `;
@@ -51,6 +143,10 @@ export function renderIndividual(deckResults) {
 
   html += '</div>';
   document.getElementById('individual-results').innerHTML = html;
+  
+  if (hasMissing) {
+    document.getElementById('export-individual-missing')?.addEventListener('click', exportIndividualMissing);
+  }
 }
 
 // ── Simultaneous analysis ─────────────────────────────────────────────────────
@@ -106,6 +202,9 @@ export function renderSimultaneous(comboResult, parsedDecks) {
     </div>
     ${note}
     <div class="combo-list" style="margin-top:14px">${combosHtml}</div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <button id="export-simultaneous-missing" class="export-btn">📥 Export Missing Cards for Selected Combo</button>
+    </div>
   `;
 }
 
@@ -187,6 +286,9 @@ export function onComboChange() {
           ${extra > 0 ? `<li style="color:var(--text-muted)">…and ${extra} more</li>` : ''}
         </ul>
       </details>
+      <button id="export-combo-missing" class="export-btn" style="margin-top:10px">📥 Export Missing Cards for This Combo</button>
     `;
   }
-}
+  
+  document.getElementById('export-simultaneous-missing')?.addEventListener('click', exportSimultaneousMissing);
+  document.getElementById('export-combo-missing')?.addEventListener('click', exportSimultaneousMissing);

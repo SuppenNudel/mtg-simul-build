@@ -85,7 +85,14 @@ export function calculate() {
 
   const comboResult = findBestCombinations(parsedDecks, effectiveCollection, unlimitedBasics, subFind);
 
-  state.currentResult = { parsedDecks, collection: effectiveCollection, unlimitedBasics, subFind };
+  state.currentResult = { 
+    parsedDecks, 
+    collection: effectiveCollection, 
+    unlimitedBasics, 
+    subFind,
+    deckResults,
+    comboResult,
+  };
 
   renderIndividual(deckResults);
   renderSimultaneous(comboResult, parsedDecks);
