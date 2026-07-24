@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTG Simultaneous Build Checker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="site-header">
+      <h1>MTG Simultaneous Build Checker</h1>
+      <p>Paste your collection and the decklists you want to build — find out which ones you can assemble at the same time.</p>
+    </header>
+
+    <main>
+
+      <!-- ── Collection ──────────────────────────────────────── -->
+      <section class="panel" id="collection-panel">
+        <h2>Your Collection</h2>
+        <p class="hint">
+          Supported formats: <code>4 Lightning Bolt</code> · <code>4x Lightning Bolt</code> · Arena exports (<code>4 Lightning Bolt (M10) 145</code>)
+        </p>
+        <div class="import-bar">
+          <button id="import-csv-btn" class="btn btn-secondary">⬆ Import ManaBox CSV</button>
+          <span id="import-status" class="hint"></span>
+          <input type="file" id="csv-file-input" accept=".csv" style="display:none" />
+        </div>
+        <textarea id="collection-input" rows="12"
+          placeholder="4 Lightning Bolt&#10;4x Counterspell&#10;20 Island&#10;..."></textarea>
+        <label class="toggle-label">
+          <input type="checkbox" id="unlimited-basics" checked />
+          Treat all basic lands as unlimited
+          <span class="hint">(Forest, Island, Mountain, Plains, Swamp, Wastes + Snow-Covered variants)</span>
+        </label>
+      </section>
+      <!-- ── Substitutions ───────────────────────────────── -->
+      <section class="panel" id="substitutions-panel">
+        <div class="section-header">
+          <h2>Card Substitutions <span class="badge-optional">optional</span></h2>
+          <button id="add-sub-btn" class="btn btn-secondary">+ Add Substitution</button>
+        </div>
+        <p class="hint">
+          Cards paired here share the same pool. Useful for functional equivalents or proxies —
+          e.g. <em>Swiftfoot Boots</em> ↔ <em>Lightning Greaves</em>.
+        </p>
+        <p id="subs-empty" class="hint" style="margin-top:6px">No substitutions defined.</p>
+        <div id="substitutions-container"></div>
+      </section>
+      <!-- ── Decklists ───────────────────────────────────────── -->
+      <section class="panel" id="decklists-panel">
+        <div class="section-header">
+          <h2>Decklists to Build</h2>
+          <button id="add-deck-btn" class="btn btn-secondary">+ Add Deck</button>
+        </div>
+        <div id="decklists-container"></div>
+      </section>
+
+      <!-- ── Action ─────────────────────────────────────────── -->
+      <div class="action-bar">
+        <button id="calculate-btn" class="btn btn-primary">Check Buildability</button>
+      </div>
+
+      <!-- ── Results ────────────────────────────────────────── -->
+      <section id="results-section" class="hidden">
+
+        <!-- Individual decks -->
+        <div class="panel" id="individual-panel">
+          <h2>Individual Deck Results</h2>
+          <div id="individual-results"></div>
+        </div>
+
+        <!-- Simultaneous analysis -->
+        <div class="panel" id="simultaneous-panel">
+          <h2>Simultaneous Build Analysis</h2>
+          <div id="simultaneous-results"></div>
+        </div>
+
+        <!-- Interactive combo checker -->
+        <div class="panel" id="interactive-panel">
+          <h2>Interactive Combo Checker</h2>
+          <p class="hint">Select any combination of decks to instantly check if they can all be built at the same time.</p>
+          <div id="combo-checkboxes" class="combo-checkbox-grid"></div>
+          <div id="combo-result" class="combo-result-box"></div>
+        </div>
+
+      </section>
+    </main>
+
+    <footer>
+      <p>No data is sent anywhere — everything runs in your browser. · <a href="https://github.com/" target="_blank" rel="noopener">GitHub Pages</a></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
