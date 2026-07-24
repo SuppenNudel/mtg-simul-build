@@ -61,7 +61,12 @@
         <div id="tierlist-panel" class="tierlist-panel hidden">
           <div class="tierlist-panel-header">
             <span id="tierlist-status" class="hint">Click “Load Tier List” to fetch the latest data.</span>
-            <button id="load-tierlist-btn" class="btn btn-secondary btn-small">&#x21BB; Load Tier List</button>
+            <div class="tierlist-controls">
+              <label for="tierlist-days-input" class="hint">Lookback:</label>
+              <input type="number" id="tierlist-days-input" min="1" max="365" value="60" class="days-input" />
+              <span class="hint">days</span>
+              <button id="load-tierlist-btn" class="btn btn-secondary btn-small">&#x21BB; Load Tier List</button>
+            </div>
           </div>
           <div id="tierlist-decks-list"></div>
           <div id="tierlist-actions" class="tierlist-actions hidden">

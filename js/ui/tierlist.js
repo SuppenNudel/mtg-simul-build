@@ -11,14 +11,16 @@ export async function loadTierList() {
   const statusEl  = document.getElementById('tierlist-status');
   const listEl    = document.getElementById('tierlist-decks-list');
   const actionsEl = document.getElementById('tierlist-actions');
+  const daysInput = document.getElementById('tierlist-days-input');
+  const days      = parseInt(daysInput.value, 10) || 60;
 
-  statusEl.textContent = 'Fetching tier list from Pauperbrews…';
+  statusEl.textContent = `Fetching tier list from Pauperbrews (${days} days)…`;
   statusEl.style.color = '';
   listEl.innerHTML = '';
   actionsEl.classList.add('hidden');
 
   try {
-    const raw   = await fetchTierList(60);
+    const raw   = await fetchTierList(days);
     const decks = raw.map(d => ({
       deckId: String(d.latest_deck_id),
       name:   d.deck_name,
