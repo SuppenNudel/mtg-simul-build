@@ -4,7 +4,7 @@ import { addDeck, removeDeck, renderDecklists, calculate }          from './ui/d
 import { renderIndividual, renderSimultaneous, renderInteractive,
          tryCombo, onComboChange }                                  from './ui/results.js';
 import { toggleTierlistPanel, loadTierList,
-         selectTierDecks, importSelected }                          from './ui/tierlist.js';
+         selectTierDecks, importSelected, toggleTierSection }      from './ui/tierlist.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -46,8 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Tier "Select all / Deselect all" buttons
   document.getElementById('tierlist-decks-list').addEventListener('click', e => {
-    const btn = e.target.closest('[data-action="select-tier"]');
-    if (btn) selectTierDecks(btn.dataset.tier, btn.dataset.checked === 'true');
+    const selectBtn = e.target.closest('[data-action="select-tier"]');
+    if (selectBtn) selectTierDecks(selectBtn.dataset.tier, selectBtn.dataset.checked === 'true');
+
+    const toggleBtn = e.target.closest('[data-action="toggle-tier"]');
+    if (toggleBtn) toggleTierSection(toggleBtn.dataset.tier);
   });
 
   // ── Default decklists ─────────────────────────────────────────────────────

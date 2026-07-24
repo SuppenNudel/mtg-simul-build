@@ -15,8 +15,8 @@ export const TIER_ORDER  = ['S', 'A', 'B', 'C', 'D', '?'];
 
 /** Map Pauperbrews tier strings to single-letter labels. */
 export function tierLabel(tier) {
-  const MAP = { 'Tier 1': 'A', 'Tier 2': 'B', 'Tier 3': 'C' };
-  return MAP[tier] || 'D';
+  const MAP = { 'Tier 1': 'A', 'Tier 2': 'B', 'Tier 3': 'C', 'Rogue': '?' };
+  return MAP[tier] || '?';
 }
 
 /**

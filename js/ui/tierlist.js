@@ -31,6 +31,12 @@ export async function loadTierList() {
       presence:  d.weekly_presence_pct,
     }));
 
+    // Rename top 5 Rogues to "D-tier"
+    const rogues = decks.filter(d => d.tier === '?').sort((a, b) => b.score - a.score);
+    for (let i = 0; i < Math.min(5, rogues.length); i++) {
+      rogues[i].tier = 'D';
+    }
+
     if (decks.length === 0) {
       statusEl.textContent = '⚠ No decks found — the API may have changed.';
       statusEl.style.color = 'var(--red)';
@@ -57,13 +63,23 @@ export function renderTierListDecks(decks) {
     if (!byTier[tier]) continue;
     const color = TIER_COLORS[tier];
     const tierDecks = byTier[tier];
+    const isCollapsed = tier === 'D' || tier === '?';
+    const tierLabel = tier === '?' ? 'Rogue' : `Tier ${tier}`;
     
     html += `
-      <div class="tier-section">
-        <div class="tier-badge-bar" style="background:${color}">
-          <div class="tier-badge-label">${tier === '?' ? '?' : tier}</div>
+      <div class="tier-section" data-tier="${tier}" data-collapsed="${isCollapsed}">
+        <div class="tier-header">
+          <div class="tier-badge-bar" style="background:${color}">
+            <div class="tier-badge-label">${tier}</div>
+          </div>
+          <div class="tier-header-controls">
+            <span class="tier-title">${tierLabel} (${tierDecks.length})</span>
+            <button class="tier-toggle-btn" data-action="toggle-tier" data-tier="${tier}" title="Toggle section">
+              ${isCollapsed ? '▶' : '▼'}
+            </button>
+          </div>
         </div>
-        <div class="tier-decks-wrapper">
+        <div class="tier-content" style="display: ${isCollapsed ? 'none' : 'flex'}">
           <div class="tier-section-controls">
             <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="true">Select all</button>
             <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="false">Deselect all</button>
@@ -121,6 +137,9 @@ export async function importSelected() {
   const progressBar  = document.getElementById('import-progress-bar');
   const progressLabel = document.getElementById('import-progress-label');
   const logEl        = document.getElementById('import-log');
+
+  // Clear existing decklists
+  state.decks = [];
 
   btn.disabled = true;
   progressWrap.classList.remove('hidden');
@@ -180,4 +199,17 @@ export async function importSelected() {
 
   document.getElementById('decklists-container')
     .scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+export function toggleTierSection(tier) {
+  const section = document.querySelector(`[data-tier="${tier}"]`);
+  if (!section) return;
+  
+  const isCollapsed = section.dataset.collapsed === 'true';
+  const content = section.querySelector('.tier-content');
+  const btn = section.querySelector('.tier-toggle-btn');
+  
+  section.dataset.collapsed = !isCollapsed;
+  content.style.display = isCollapsed ? 'flex' : 'none';
+  btn.textContent = isCollapsed ? '▼' : '▶';
 }

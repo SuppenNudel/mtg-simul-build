@@ -214,8 +214,17 @@ h3 {
 /* Tier List Card Layout */
 .tier-section {
   display: flex;
+  flex-direction: column;
   gap: 0;
   margin-bottom: 16px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tier-header {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
 }
 
 .tier-badge-bar {
@@ -236,13 +245,41 @@ h3 {
   font-weight: 700;
 }
 
-.tier-decks-wrapper {
+.tier-header-controls {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
   background: var(--surface2);
-  border-radius: 0 4px 4px 0;
-  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+
+.tier-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tier-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  flex-shrink: 0;
+}
+
+.tier-toggle-btn:hover {
+  color: var(--gold-dim);
+}
+
+.tier-content {
   display: flex;
   flex-direction: column;
+  gap: 0;
+  background: var(--surface2);
 }
 
 .tier-section-controls {
