@@ -191,6 +191,22 @@ h3 {
   flex-wrap: wrap;
 }
 
+.inline-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-select {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
 .days-input {
   width: 60px;
   padding: 4px 8px;

@@ -52,7 +52,7 @@
         <div class="section-header">
           <h2>Decklists to Build</h2>
           <div class="header-btn-group">
-            <button id="import-tierlist-btn" class="btn btn-secondary">&#x1F4E5; Pauperbrews Tier List</button>
+            <button id="import-tierlist-btn" class="btn btn-secondary">&#x1F4E5; Meta Deck Importer</button>
             <button id="add-deck-btn" class="btn btn-secondary">+ Add Deck</button>
           </div>
         </div>
@@ -62,9 +62,24 @@
           <div class="tierlist-panel-header">
             <span id="tierlist-status" class="hint">Click “Load Tier List” to fetch the latest data.</span>
             <div class="tierlist-controls">
-              <label for="tierlist-days-input" class="hint">Lookback:</label>
-              <input type="number" id="tierlist-days-input" min="1" max="365" value="60" class="days-input" />
-              <span class="hint">days</span>
+              <label for="tierlist-source-input" class="hint">Source:</label>
+              <select id="tierlist-source-input" class="tier-select">
+                <option value="pauperbrews">Pauperbrews (MTGO)</option>
+                <option value="metaconfluence">Metaconfluence (Paper)</option>
+              </select>
+              <div id="tierlist-format-wrap" class="inline-control hidden">
+                <label for="tierlist-format-input" class="hint">Format:</label>
+                <select id="tierlist-format-input" class="tier-select">
+                  <option value="pauper">Pauper</option>
+                  <option value="pioneer">Pioneer</option>
+                  <option value="modern">Modern</option>
+                </select>
+              </div>
+              <div id="tierlist-days-wrap" class="inline-control">
+                <label for="tierlist-days-input" class="hint">Lookback:</label>
+                <input type="number" id="tierlist-days-input" min="1" max="365" value="60" class="days-input" />
+                <span class="hint">days</span>
+              </div>
               <button id="load-tierlist-btn" class="btn btn-secondary btn-small">&#x21BB; Load Tier List</button>
             </div>
           </div>

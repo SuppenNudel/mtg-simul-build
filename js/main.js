@@ -4,7 +4,8 @@ import { addDeck, removeDeck, renderDecklists, calculate }          from './ui/d
 import { renderIndividual, renderSimultaneous, renderInteractive,
          tryCombo, onComboChange }                                  from './ui/results.js';
 import { toggleTierlistPanel, loadTierList,
-         selectTierDecks, importSelected, toggleTierSection }      from './ui/tierlist.js';
+         selectTierDecks, importSelected, toggleTierSection,
+         syncTierlistControls }                                     from './ui/tierlist.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -17,7 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('import-tierlist-btn').addEventListener('click', toggleTierlistPanel);
   document.getElementById('load-tierlist-btn')  .addEventListener('click', loadTierList);
   document.getElementById('import-selected-btn').addEventListener('click', importSelected);
+  document.getElementById('tierlist-source-input')?.addEventListener('change', syncTierlistControls);
   document.getElementById('calculate-btn')      .addEventListener('click', calculate);
+  syncTierlistControls();
 
   // ── Event delegation for dynamically generated elements ───────────────────
 
