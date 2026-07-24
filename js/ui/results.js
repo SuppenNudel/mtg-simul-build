@@ -292,3 +292,4 @@ export function onComboChange() {
   
   document.getElementById('export-simultaneous-missing')?.addEventListener('click', exportSimultaneousMissing);
   document.getElementById('export-combo-missing')?.addEventListener('click', exportSimultaneousMissing);
+}
