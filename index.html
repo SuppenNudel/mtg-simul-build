@@ -51,8 +51,25 @@
       <section class="panel" id="decklists-panel">
         <div class="section-header">
           <h2>Decklists to Build</h2>
-          <button id="add-deck-btn" class="btn btn-secondary">+ Add Deck</button>
+          <div class="header-btn-group">
+            <button id="import-tierlist-btn" class="btn btn-secondary">&#x1F4E5; Pauperbrews Tier List</button>
+            <button id="add-deck-btn" class="btn btn-secondary">+ Add Deck</button>
+          </div>
         </div>
+
+        <!-- Pauperbrews tier list importer panel -->
+        <div id="tierlist-panel" class="tierlist-panel hidden">
+          <div class="tierlist-panel-header">
+            <span id="tierlist-status" class="hint">Click “Load Tier List” to fetch the latest data.</span>
+            <button class="btn btn-secondary btn-small" onclick="loadTierList()">&#x21BB; Load Tier List</button>
+          </div>
+          <div id="tierlist-decks-list"></div>
+          <div id="tierlist-actions" class="tierlist-actions hidden">
+            <button id="import-selected-btn" class="btn btn-primary" onclick="importSelected()">↓ Import Selected Decks</button>
+            <span id="import-progress" class="hint"></span>
+          </div>
+        </div>
+
         <div id="decklists-container"></div>
       </section>
 

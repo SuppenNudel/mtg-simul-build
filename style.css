@@ -112,6 +112,103 @@ h3 {
 }
 
 /* ── Inputs ─────────────────────────────────────────────────── */
+.header-btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Tier list importer panel ──────────────────────────────── */
+.tierlist-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.tierlist-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.tier-group { margin-bottom: 14px; }
+
+.tier-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.tier-badge {
+  font-size: .78rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 4px;
+  color: #111;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.select-tier-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: .75rem;
+  cursor: pointer;
+}
+
+.select-tier-btn:hover { border-color: var(--gold-dim); color: var(--text); }
+
+.tier-deck-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 4px;
+}
+
+.tier-deck-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: .85rem;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .15s;
+}
+
+.tier-deck-item:hover { border-color: var(--gold-dim); }
+
+.tier-deck-item input {
+  accent-color: var(--gold);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.tierlist-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.btn-small { font-size: .8rem; padding: 5px 12px; }
+
 .badge-optional {
   font-size: .7rem;
   font-weight: 500;

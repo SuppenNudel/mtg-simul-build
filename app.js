@@ -627,7 +627,248 @@ function titleCase(str) {
   );
 }
 
-// ── ManaBox CSV import ───────────────────────────────────────────────────────
+// ── Pauperbrews Tier List Importer ────────────────────────────────────────────
+
+const TIER_LIST_URL = 'https://www.pauperbrews.com/p/pauper-mtgo-tier-list-leagues.html';
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
+
+const TIER_COLORS = { S: '#b266ff', A: '#e8a020', B: '#4caf6e', C: '#4a9ede', D: '#aaa', '?': '#666' };
+const TIER_ORDER  = ['S', 'A', 'B', 'C', 'D', '?'];
+
+let _tierDecks = []; // [{deckId, name, tier}] after fetch
+
+async function fetchWithProxy(url) {
+  let lastErr;
+  for (const makeProxy of CORS_PROXIES) {
+    try {
+      const resp = await fetch(makeProxy(url), { signal: AbortSignal.timeout(15000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      return await resp.text();
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('All proxies failed');
+}
+
+// Parse the tier list HTML → [{deckId, name, tier}]
+function parseTierListHTML(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const TIERS = new Set(['S', 'A', 'B', 'C', 'D']);
+  const results = [];
+  const seen = new Set();
+  let currentTier = '?';
+
+  function walk(node) {
+    if (node.nodeType === 3) {               // text node
+      const t = node.textContent.trim();
+      if (t.length === 1 && TIERS.has(t)) currentTier = t;
+    } else if (node.nodeType === 1) {        // element node
+      if (node.tagName === 'A') {
+        const href = node.getAttribute('href') || '';
+        const m = href.match(/deck_id=(\d+)/);
+        if (m) {
+          const deckId = m[1];
+          const name = node.textContent.trim();
+          // Skip the 🔍 magnifier link (same deck_id, empty or emoji name)
+          if (!seen.has(deckId) && name.length > 1 && !/^\p{Emoji}/u.test(name)) {
+            seen.add(deckId);
+            results.push({ deckId, name, tier: currentTier });
+          }
+        }
+      }
+      for (const child of node.childNodes) walk(child);
+    }
+  }
+
+  if (doc.body) walk(doc.body);
+  return results;
+}
+
+// Parse a deck page HTML → "N Card Name\n..." text
+function parseDeckPageHTML(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  // ── Method 1: TCGPlayer affiliate buy link (main deck only, cleanest) ──────
+  for (const a of doc.querySelectorAll('a[href*="tcgplayer.com"]')) {
+    let href = a.getAttribute('href') || '';
+    // Unwrap affiliate wrapper: ...?u=https://tcgplayer.com/massentry?c=...
+    const uM = href.match(/[?&]u=([^&]+)/);
+    if (uM) href = decodeURIComponent(uM[1]);
+    const cM = href.match(/[?&]c=([^&]+)/i);
+    if (!cM) continue;
+    // Decode: %7c%7c → ||, %20 → space, + → space
+    const decoded = decodeURIComponent(cM[1]).replace(/\+/g, ' ');
+    const lines = decoded.split('||').map(e => {
+      e = e.trim();
+      const sp = e.search(/\s/);
+      if (sp < 0) return null;
+      const count = parseInt(e.slice(0, sp), 10);
+      const name  = e.slice(sp + 1).trim();
+      return (name && count > 0) ? `${count} ${name}` : null;
+    }).filter(Boolean);
+    if (lines.length >= 10) return lines.join('\n');
+  }
+
+  // ── Method 2: Scryfall image tags (fallback, includes sideboard) ──────────
+  const lines = [];
+  let addedSideboardHeader = false;
+
+  function collectImgAndText(node) {
+    if (node.nodeType === 3) {
+      const t = node.textContent.trim();
+      if (t === 'Sideboard' && !addedSideboardHeader && lines.length > 0) {
+        lines.push('Sideboard');
+        addedSideboardHeader = true;
+      }
+    } else if (node.nodeType === 1) {
+      if (node.tagName === 'IMG') {
+        const src = node.getAttribute('src') || '';
+        const nameM = src.match(/fuzzy=([^&]+)/);
+        if (nameM) {
+          const cardName = decodeURIComponent(nameM[1].replace(/\+/g, ' '));
+          // Count is ×N in the parent element text
+          const parentText = node.parentElement?.textContent || '';
+          const countM = parentText.match(/[×x](\d+)/);
+          const count = countM ? parseInt(countM[1], 10) : 1;
+          lines.push(`${count} ${cardName}`);
+        }
+      }
+      for (const child of node.childNodes) collectImgAndText(child);
+    }
+  }
+
+  if (doc.body) collectImgAndText(doc.body);
+  return lines.join('\n');
+}
+
+// ── Tier list UI ──────────────────────────────────────────────────────────────
+
+function toggleTierlistPanel() {
+  const panel = document.getElementById('tierlist-panel');
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !isHidden);
+}
+
+async function loadTierList() {
+  const statusEl  = document.getElementById('tierlist-status');
+  const listEl    = document.getElementById('tierlist-decks-list');
+  const actionsEl = document.getElementById('tierlist-actions');
+
+  statusEl.textContent = 'Fetching tier list…';
+  statusEl.style.color = '';
+  listEl.innerHTML = '';
+  actionsEl.classList.add('hidden');
+
+  try {
+    const html  = await fetchWithProxy(TIER_LIST_URL);
+    const decks = parseTierListHTML(html);
+
+    if (decks.length === 0) {
+      statusEl.textContent = '⚠ No decks found — the page structure may have changed.';
+      statusEl.style.color = 'var(--red)';
+      return;
+    }
+
+    _tierDecks = decks;
+    const tierCount = new Set(decks.map(d => d.tier)).size;
+    statusEl.textContent = `Found ${decks.length} decks across ${tierCount} tiers.`;
+    statusEl.style.color = 'var(--green)';
+    renderTierListDecks(decks);
+    actionsEl.classList.remove('hidden');
+  } catch (e) {
+    statusEl.textContent = `⚠ Fetch failed: ${e.message}`;
+    statusEl.style.color = 'var(--red)';
+  }
+}
+
+function renderTierListDecks(decks) {
+  const byTier = {};
+  for (const d of decks) (byTier[d.tier] = byTier[d.tier] || []).push(d);
+
+  let html = '';
+  for (const tier of TIER_ORDER) {
+    if (!byTier[tier]) continue;
+    const color = TIER_COLORS[tier];
+    html += `
+      <div class="tier-group">
+        <div class="tier-group-header">
+          <span class="tier-badge" style="background:${color}">${tier === '?' ? 'Unknown' : 'Tier ' + tier}</span>
+          <button class="select-tier-btn" onclick="selectTierDecks('${tier}', true)">Select all</button>
+          <button class="select-tier-btn" onclick="selectTierDecks('${tier}', false)">Deselect all</button>
+        </div>
+        <div class="tier-deck-list">
+          ${byTier[tier].map(d => `
+            <label class="tier-deck-item">
+              <input type="checkbox" class="tier-deck-check"
+                     data-deck-id="${esc(d.deckId)}" data-deck-name="${esc(d.name)}" />
+              ${esc(d.name)}
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  document.getElementById('tierlist-decks-list').innerHTML = html;
+}
+
+function selectTierDecks(tier, checked) {
+  document.querySelectorAll('.tier-deck-check').forEach(cb => {
+    if (_tierDecks.find(d => d.deckId === cb.dataset.deckId)?.tier === tier) {
+      cb.checked = checked;
+    }
+  });
+}
+
+async function importSelected() {
+  const checked = [...document.querySelectorAll('.tier-deck-check:checked')];
+  if (checked.length === 0) { alert('Select at least one deck first.'); return; }
+
+  const progressEl = document.getElementById('import-progress');
+  const btn        = document.getElementById('import-selected-btn');
+  btn.disabled = true;
+
+  let imported = 0, failed = 0;
+
+  for (let i = 0; i < checked.length; i++) {
+    const { deckId, deckName } = checked[i].dataset;
+    progressEl.textContent = `Fetching ${deckName} (${i + 1}/${checked.length})…`;
+
+    try {
+      const url      = `https://www.pauperbrews.com/p/decklist-visual-view.html?deck_id=${deckId}`;
+      const html     = await fetchWithProxy(url);
+      const listText = parseDeckPageHTML(html);
+      if (!listText.trim()) throw new Error('empty decklist');
+
+      const tier = _tierDecks.find(d => d.deckId === deckId)?.tier || '?';
+      decks.push({ id: nextId++, name: `[${tier}] ${deckName}`, listText });
+      imported++;
+    } catch (e) {
+      console.warn(`Failed to import ${deckName}:`, e);
+      failed++;
+    }
+  }
+
+  renderDecklists();
+  btn.disabled = false;
+  progressEl.textContent = '';
+
+  const statusEl = document.getElementById('tierlist-status');
+  statusEl.style.color = failed > 0 ? 'var(--gold)' : 'var(--green)';
+  statusEl.textContent =
+    `Imported ${imported} deck${imported !== 1 ? 's' : ''}` +
+    (failed > 0 ? `, ${failed} failed (check console)` : '.') +
+    ' Scroll down to see them.';
+
+  document.getElementById('decklists-container')
+    .scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── ManaBox CSV import ────────────────────────────────────────────────────────
+
 
 /**
  * Parse a ManaBox CSV export and return a Map<normalizedName, totalQuantity>.
@@ -691,6 +932,7 @@ function totalsToText(totals) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('add-deck-btn').addEventListener('click', addDeck);
+  document.getElementById('import-tierlist-btn').addEventListener('click', toggleTierlistPanel);
   document.getElementById('add-sub-btn').addEventListener('click', addSubstitution);
   document.getElementById('calculate-btn').addEventListener('click', calculate);
   renderSubstitutions();
