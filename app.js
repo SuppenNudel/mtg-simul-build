@@ -631,8 +631,8 @@ function titleCase(str) {
 
 const TIER_LIST_URL = 'https://www.pauperbrews.com/p/pauper-mtgo-tier-list-leagues.html';
 const CORS_PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
 ];
 
 const TIER_COLORS = { S: '#b266ff', A: '#e8a020', B: '#4caf6e', C: '#4a9ede', D: '#aaa', '?': '#666' };
