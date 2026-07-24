@@ -22,9 +22,13 @@ export async function loadTierList() {
   try {
     const raw   = await fetchTierList(days);
     const decks = raw.map(d => ({
-      deckId: String(d.latest_deck_id),
-      name:   d.deck_name,
-      tier:   tierLabel(d.tier),
+      deckId:    String(d.latest_deck_id),
+      name:      d.deck_name,
+      tier:      tierLabel(d.tier),
+      score:     d.tier_score,
+      trophies:  d.trophy_count,
+      weeks:     d.active_weeks,
+      presence:  d.weekly_presence_pct,
     }));
 
     if (decks.length === 0) {
@@ -52,6 +56,8 @@ export function renderTierListDecks(decks) {
   for (const tier of TIER_ORDER) {
     if (!byTier[tier]) continue;
     const color = TIER_COLORS[tier];
+    const tierDecks = byTier[tier];
+    
     html += `
       <div class="tier-group">
         <div class="tier-group-header">
@@ -59,15 +65,33 @@ export function renderTierListDecks(decks) {
           <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="true">Select all</button>
           <button class="select-tier-btn" data-action="select-tier" data-tier="${tier}" data-checked="false">Deselect all</button>
         </div>
-        <div class="tier-deck-list">
-          ${byTier[tier].map(d => `
-            <label class="tier-deck-item">
-              <input type="checkbox" class="tier-deck-check"
-                     data-deck-id="${esc(d.deckId)}" data-deck-name="${esc(d.name)}" />
-              ${esc(d.name)}
-            </label>
-          `).join('')}
-        </div>
+        <table class="tier-table">
+          <thead>
+            <tr>
+              <th style="width: 30px;"></th>
+              <th>Deck Name</th>
+              <th style="width: 70px;">Score</th>
+              <th style="width: 80px;">Trophies</th>
+              <th style="width: 60px;">Weeks</th>
+              <th style="width: 80px;">Presence</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tierDecks.map(d => `
+              <tr>
+                <td style="text-align: center;">
+                  <input type="checkbox" class="tier-deck-check"
+                         data-deck-id="${esc(d.deckId)}" data-deck-name="${esc(d.name)}" />
+                </td>
+                <td>${esc(d.name)}</td>
+                <td>${d.score.toFixed(1)}</td>
+                <td>${d.trophies}</td>
+                <td>${d.weeks}</td>
+                <td>${d.presence.toFixed(0)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
       </div>
     `;
   }

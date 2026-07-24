@@ -211,6 +211,55 @@ h3 {
   margin-bottom: 6px;
 }
 
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tier-table thead {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.tier-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+
+.tier-table th:last-child {
+  border-right: none;
+}
+
+.tier-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.15s;
+}
+
+.tier-table tbody tr:hover {
+  background: var(--surface2);
+}
+
+.tier-table td {
+  padding: 8px 12px;
+  border-right: 1px solid var(--border);
+}
+
+.tier-table td:last-child {
+  border-right: none;
+}
+
+.tier-table input[type="checkbox"] {
+  cursor: pointer;
+}
+
 .tier-badge {
   font-size: .78rem;
   font-weight: 800;
